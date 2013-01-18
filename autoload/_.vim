@@ -22,7 +22,6 @@ endfunction
 "
 " Example:
 "
-" TODO support a function
 " call VUAssertEquals(vimunit#util#map({'a': 5, 'b': 6},'let result = val'),[5,6])
 function! _#map(dictionary,evaluation)
   let results = []
@@ -77,3 +76,40 @@ function! _#memoize(fn,...)
   endfunction
   return result
 endfunction
+
+" Given a string, return a much smaller hash of the string (16 characters).
+"
+" TODO test the hash function, and/or port to vim
+"
+" Note: this function depends on +python support.
+function! _#hash(str)
+	python import sys
+  let cleaned = substitute(a:str,"'","\\\\'","g")
+	exe "python sys.argv = ['". cleaned ."']"
+  python import hashlib
+  python import sys
+  python import vim
+  python str = sys.argv[0]
+  python hash = hashlib.md5(str).hexdigest()[0:15]
+  python vim.command('let s:hash = "'+ hash +'"')
+  return s:hash
+endfunction
+
+" Return the unique elements in a list.
+"
+" TODO document and support hashes?
+" TODO support a funcref?
+"
+" Parameters: A list.
+"
+" Returns: A new list, with the unique elements from a:list.
+function! _#uniq(list)
+	let result = []
+	for i in a:list
+		if count(result,i) == 0
+			call add(result,i)
+		endif
+	endfor
+	return result
+endfunction
+
