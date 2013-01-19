@@ -55,7 +55,7 @@ function! _#memoize(fn,...)
   if exists('a:1')
     let Hashfn = a:1
   else
-    let Hashfn = function('mvom#util#location#dfltmemo')
+    let Hashfn = function('vus#internal#dfltmemo')
   endif
   let result = { 'data': { 'hits': 0, 'misses': 0},
         \'fn': a:fn,
