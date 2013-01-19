@@ -117,9 +117,15 @@ endfunction
 "
 " Parameters:
 "            list: a list.
-"   sort function: (optional) either a string (that is evaluated) or a
-"                  function (with two params, a and b).
-"            dict: dictionary related to 'sort function' (see sort())
+"   sort function: (optional) if... 
+"                  - A string (that is evaluated) where 'a' and 'b' must be
+"                    compared and returned (see Vim's sort() method).
+"                  - A function (with two params, a and b).
+"                  - A funcref and a dictionary (see Vim's sort()).
+"                  - number 1. sort with ignorecase.
+"                  - number 2. try to convert strings to numbers and sort
+"                    numerically
+"            dict: (optional) dictionary related to 'sort function' (see sort())
 " 
 " Returns: sorted list.
 function! _#sort(list,...)
@@ -127,7 +133,15 @@ function! _#sort(list,...)
     " if its a funcref
     return sort(a:list,a:1,a:2)
   elseif exists('a:1')
-    if type(a:1) == 1
+    if type(a:1) == 0
+      if a:1 == 1
+        return sort(a:list,1)
+      elseif a:1 == 2
+        return _#sort(a:list,'str2nr(a) == str2nr(b) ? 0 : str2nr(a) > str2nr(b) ? 1 : -1')
+      else
+        throw 'Unknown numerical sort type: only 1 and 2 are supported.'
+      endif
+    elseif type(a:1) == 1
       " if its a string
       let fn = { 'cmpstr': a:1 }
       function fn.compare(a,b) dict
