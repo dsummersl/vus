@@ -113,3 +113,37 @@ function! _#uniq(list)
 	return result
 endfunction
 
+" Sort a list.
+"
+" Parameters:
+"            list: a list.
+"   sort function: (optional) either a string (that is evaluated) or a
+"                  function (with two params, a and b).
+"            dict: dictionary related to 'sort function' (see sort())
+" 
+" Returns: sorted list.
+function! _#sort(list,...)
+  if exists('a:2')
+    " if its a funcref
+    return sort(a:list,a:1,a:2)
+  elseif exists('a:1')
+    if type(a:1) == 1
+      " if its a string
+      let fn = { 'cmpstr': a:1 }
+      function fn.compare(a,b) dict
+        let a = a:a
+        let b = a:b
+        exec "return ". self.cmpstr
+      endfunction
+      return sort(a:list,fn.compare,fn)
+    elseif type(a:1) == 2
+      " if its a funcref
+      return sort(a:list,a:1)
+    else
+      throw '2nd parameter must be a string or funcref.'
+    endif
+  elseif exists('a:2')
+    throw 'Only up to two parameters are supported.'
+  endif
+  return sort(a:list)
+endfunction
