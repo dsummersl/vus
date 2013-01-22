@@ -133,6 +133,7 @@ function! _#sort(list,...)
     " if its a funcref
     return sort(a:list,a:1,a:2)
   elseif exists('a:1')
+    " when its a number
     if type(a:1) == 0
       if a:1 == 1
         return sort(a:list,1)
@@ -141,8 +142,8 @@ function! _#sort(list,...)
       else
         throw 'Unknown numerical sort type: only 1 and 2 are supported.'
       endif
+    " if its a string
     elseif type(a:1) == 1
-      " if its a string
       let fn = { 'cmpstr': a:1 }
       function fn.compare(a,b) dict
         let a = a:a
@@ -150,8 +151,8 @@ function! _#sort(list,...)
         exec "return ". self.cmpstr
       endfunction
       return sort(a:list,fn.compare,fn)
+    " if its a funcref
     elseif type(a:1) == 2
-      " if its a funcref
       return sort(a:list,a:1)
     else
       throw '2nd parameter must be a string or funcref.'
@@ -160,4 +161,45 @@ function! _#sort(list,...)
     throw 'Only up to two parameters are supported.'
   endif
   return sort(a:list)
+endfunction
+
+" Reduce a list down to one value.
+"
+" Parameters:
+"   list: list of values. TODO support dictionaries
+"   func: reduction function (funcref). Is provided with 'el', 'i', 'list' and 'memo'
+"   (current value of the reduction). Must return the new value of the
+"   reduction.
+"   TODO support a string as well as a funcref.
+"   memo: initial value of the reduction.
+function! _#reduce(list,func,memo)
+  let length = len(a:list)
+  for i in range(length)
+    call a:func(a:list[i],i,a:list,a:memo)
+  endfor
+  return a:memo
+endfunction
+
+" Give the minimum value of a list.
+"
+" Parameters:
+"      list: a list.
+"  selector: (optional). One of:
+"  - string: will be evaluated. Variables 'el' (current element from the
+"            list), 'i' (index of the element), and 'list' (the list) are provided.
+"  - TODO funcref: A function with three parameters: el, i, list.
+function! _#min(list,...)
+  return vus#internal#minmax(a:list,'min',a:000)
+endfunction
+
+" Give the maximum value of a list.
+"
+" Parameters:
+"      list: a list.
+"  selector: (optional). One of:
+"  - string: will be evaluated. Variables 'el' (current element from the
+"            list), 'i' (index of the element), and 'list' (the list) are provided.
+"  - TODO funcref: A function with three parameters: el, i, list.
+function! _#max(list,...)
+  return vus#internal#minmax(a:list,'max',a:000)
 endfunction

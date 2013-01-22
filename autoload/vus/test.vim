@@ -43,3 +43,25 @@ function! TestSort()
 	"call VUAssertEquals(_#sort(['10','1','2'],2),['1','2','10'])
   "call VUAssertEquals(_#sort(['10','1','2'],'str2nr(a) == str2nr(b) ? 0 : str2nr(a) > str2nr(b) ? 1 : -1'),[1,2,3])
 endfunction
+
+function! TestMinMax()
+  try
+    _#min([])
+    call VUAssertTrue(0)
+  catch /.*/
+    " an exception is thrown: there is no min in an empty list.
+  endtry
+
+  call VUAssertEquals(_#min([1]),1)
+  call VUAssertEquals(_#min([1,5]),1)
+  call VUAssertEquals(_#min([12,6,1]),1)
+
+  call VUAssertEquals(_#max([1]),1)
+  call VUAssertEquals(_#max([1,5]),5)
+  call VUAssertEquals(_#max([12,6,1]),12)
+
+  " el, i, list
+  call VUAssertEquals(_#min([{'key': 3},{'key': 1}],'el["key"]'),{'key': 1})
+  call VUAssertEquals(_#max([{'key': 3},{'key': 1}],'el["key"]'),{'key': 3})
+endfunction
+
