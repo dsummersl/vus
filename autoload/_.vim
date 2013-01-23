@@ -166,40 +166,62 @@ endfunction
 " Reduce a list down to one value.
 "
 " Parameters:
-"   list: list of values. TODO support dictionaries
-"   func: reduction function (funcref). Is provided with 'el', 'i', 'list' and 'memo'
+"   list: list or dictionary.
+"   func: reduction function (funcref). TODO support a string as well as a funcref.
+"   memo: initial value of the reduction.
+"
+" When 'list' is a list:
+"   The run is provided with 'el', 'i', 'list' and 'memo'
 "   (current value of the reduction). Must return the new value of the
 "   reduction.
-"   TODO support a string as well as a funcref.
-"   memo: initial value of the reduction.
+"
+" When 'list' is a dictionary:
+"   The function is provided 'key', 'val', 'list' and 'memo'
+"
 function! _#reduce(list,func,memo)
-  let length = len(a:list)
-  for i in range(length)
-    call a:func(a:list[i],i,a:list,a:memo)
-  endfor
-  return a:memo
+  " if its a list:
+  if type(a:list) == 3
+    let length = len(a:list)
+    for i in range(length)
+      call a:func(a:list[i],i,a:list,a:memo)
+    endfor
+    return a:memo
+  elseif type(a:list) == 4
+    let dict = a:list
+    for key in keys(a:list)
+      let val = a:list[key]
+      call a:func(key,val,dict,a:memo)
+    endfor
+    return a:memo
+  else
+    throw 'list must be a List or Dictionary.'
+  endif
 endfunction
 
-" Give the minimum value of a list.
+" Give the minimum value of a list or dictionary.
 "
 " Parameters:
-"      list: a list.
+"      list: a list or dictionary.
 "  selector: (optional). One of:
 "  - string: will be evaluated. Variables 'el' (current element from the
 "            list), 'i' (index of the element), and 'list' (the list) are provided.
 "  - TODO funcref: A function with three parameters: el, i, list.
+"
+" When 'list' is a dictionary, returns the key with the min value.
 function! _#min(list,...)
   return vus#internal#minmax(a:list,'min',a:000)
 endfunction
 
-" Give the maximum value of a list.
+" Give the maximum value of a list or dictionary.
 "
 " Parameters:
-"      list: a list.
+"      list: a list or dictionary.
 "  selector: (optional). One of:
 "  - string: will be evaluated. Variables 'el' (current element from the
 "            list), 'i' (index of the element), and 'list' (the list) are provided.
 "  - TODO funcref: A function with three parameters: el, i, list.
+"
+" When 'list' is a dictionary, returns the key with the max value.
 function! _#max(list,...)
   return vus#internal#minmax(a:list,'max',a:000)
 endfunction

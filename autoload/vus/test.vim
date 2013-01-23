@@ -63,5 +63,8 @@ function! TestMinMax()
   " el, i, list
   call VUAssertEquals(_#min([{'key': 3},{'key': 1}],'el["key"]'),{'key': 1})
   call VUAssertEquals(_#max([{'key': 3},{'key': 1}],'el["key"]'),{'key': 3})
+
+  call VUAssertEquals(_#min({'keya': 3,'keyb': 1},'val'),'keyb')
+  call VUAssertEquals(_#max({'keya': 3,'keyb': 1},'val'),'keya')
 endfunction
 

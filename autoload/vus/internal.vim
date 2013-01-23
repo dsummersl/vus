@@ -6,30 +6,32 @@ endfunction
 function! vus#internal#minmaxfnc(el,i,list,memo)
   let el = a:el
   let i = a:i
+  let key = a:el
+  let val = a:i
   let list = a:list
   if has_key(a:memo,'extra')
     call VULog("type of extra = ". type(a:memo['extra']) )
     if type(a:memo['extra']) == 1
       " if a string, evaluate it directly:
-      exec "let val = ". a:memo['extra']
+      exec "let rval = ". a:memo['extra']
     else
       throw 'Only custom strings are allowed.'
     endif
   else
-    let val = el
+    let rval = el
   endif
   if a:memo['val'] == '__noval__'
-    let a:memo['val'] = val
+    let a:memo['val'] = rval
     let a:memo['valel'] = el
   else
     if a:memo['op'] == 'min'
-      if val < a:memo['val']
-        let a:memo['val'] = val
+      if rval < a:memo['val']
+        let a:memo['val'] = rval
         let a:memo['valel'] = el
       endif
     elseif a:memo['op'] == 'max'
-      if val > a:memo['val']
-        let a:memo['val'] = val
+      if rval > a:memo['val']
+        let a:memo['val'] = rval
         let a:memo['valel'] = el
       endif
     else
