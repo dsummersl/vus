@@ -38,10 +38,8 @@ function! TestSort()
 	call VUAssertEquals(_#sort([]),[])
 	call VUAssertEquals(_#sort([1,3,2]),[1,2,3])
 	call VUAssertEquals(_#sort(['abc','Adf','aDc'],1),['abc','aDc','Adf'])
-  " TODO for some reason this doesn't work. even without the assert.
-  " something funky about i tall
-	"call VUAssertEquals(_#sort(['10','1','2'],2),['1','2','10'])
-  "call VUAssertEquals(_#sort(['10','1','2'],'str2nr(a) == str2nr(b) ? 0 : str2nr(a) > str2nr(b) ? 1 : -1'),[1,2,3])
+	call VUAssertEquals(_#sort(['10','1','2'],2),['1','2','10'])
+  call VUAssertEquals(_#sort(['10','1','2'],'str2nr(a) == str2nr(b) ? 0 : str2nr(a) > str2nr(b) ? 1 : -1'),['1','2','10'])
 endfunction
 
 function! TestMinMax()

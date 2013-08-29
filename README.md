@@ -29,5 +29,4 @@ I used vimunit for testing. If you have it installed, you can run all the tests 
 Requirements:
 ====
 
-Vim Version 7.3.390+ (patch 29x fixes a lack in the sort() function that
-several functions in this library require). '+python' support is also required.
+Vim Version 7.2+. '+python' support is also required.

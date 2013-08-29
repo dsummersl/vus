@@ -116,7 +116,9 @@ endfunction
 " Sort a list.
 "
 " Parameters:
+"
 "            list: a list.
+"
 "   sort function: (optional) if... 
 "                  - A string (that is evaluated) where 'a' and 'b' must be
 "                    compared and returned (see Vim's sort() method).
@@ -125,6 +127,7 @@ endfunction
 "                  - number 1. sort with ignorecase.
 "                  - number 2. try to convert strings to numbers and sort
 "                    numerically
+"
 "            dict: (optional) dictionary related to 'sort function' (see sort())
 " 
 " Returns: sorted list.
@@ -144,13 +147,17 @@ function! _#sort(list,...)
       endif
     " if its a string
     elseif type(a:1) == 1
-      let fn = { 'cmpstr': a:1 }
-      function fn.compare(a,b) dict
+      " the cmpstr is a string representation of the comparison function (which
+      " will use a/b to do the comparison:
+      let b:cmpstr = a:1
+      function! b:CmpStrFunc(a,b)
         let a = a:a
         let b = a:b
-        exec "return ". self.cmpstr
+        exec "return ". b:cmpstr
       endfunction
-      return sort(a:list,fn.compare,fn)
+      let result = sort(a:list,function("b:CmpStrFunc"))
+      unlet b:cmpstr
+      return result
     " if its a funcref
     elseif type(a:1) == 2
       return sort(a:list,a:1)
@@ -194,7 +201,7 @@ function! _#reduce(list,func,memo)
     endfor
     return a:memo
   else
-    throw 'list must be a List or Dictionary.'
+    throw 'List must be a List or Dictionary.'
   endif
 endfunction
 
