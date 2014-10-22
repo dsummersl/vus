@@ -1,9 +1,20 @@
-function! _#sum(list)
-  let sum = 0
-  for i in a:list
-    let sum += i
-  endfor
-  return sum
+" Given a string, return a hash of the string (16 characters).
+"
+" TODO test the hash function, and/or port to vim
+" TODO support visual mode (hashing a visual selection)
+"
+" Note: this function depends on +python support.
+function! _#hash(str)
+	python import sys
+  let cleaned = substitute(a:str,"'","\\\\'","g")
+	exe "python sys.argv = ['''". cleaned ."''']"
+  python import hashlib
+  python import sys
+  python import vim
+  python str = sys.argv[0]
+  python hash = hashlib.md5(str).hexdigest()[0:15]
+  python vim.command('let s:hash = "'+ hash +'"')
+  return s:hash
 endfunction
 
 " Perform a mapping on the dictionary
@@ -77,40 +88,83 @@ function! _#memoize(fn,...)
   return result
 endfunction
 
-" Given a string, return a much smaller hash of the string (16 characters).
+" Return the maximum value of a list or dictionary.
 "
-" TODO test the hash function, and/or port to vim
+" Parameters:
+"      list: a list or dictionary.
+"  selector: (optional). One of:
+"  - string: will be evaluated. Variables 'el' (current element from the
+"            list), 'i' (index of the element), and 'list' (the list) are provided.
+"  - TODO funcref: A function with three parameters: el, i, list.
 "
-" Note: this function depends on +python support.
-function! _#hash(str)
-	python import sys
-  let cleaned = substitute(a:str,"'","\\\\'","g")
-	exe "python sys.argv = ['". cleaned ."']"
-  python import hashlib
-  python import sys
-  python import vim
-  python str = sys.argv[0]
-  python hash = hashlib.md5(str).hexdigest()[0:15]
-  python vim.command('let s:hash = "'+ hash +'"')
-  return s:hash
+" When 'list' is a dictionary, returns the key with the max value.
+function! _#max(list,...)
+  return vus#internal#minmax(a:list,'max',a:000)
 endfunction
 
-" Return the unique elements in a list.
+" Return the minimum value of a list or dictionary.
 "
-" TODO document and support hashes?
-" TODO support a funcref?
+" Parameters:
+"      list: a list or dictionary.
+"  selector: (optional). One of:
+"  - string: will be evaluated. Variables 'el' (current element from the
+"            list), 'i' (index of the element), and 'list' (the list) are provided.
+"  - TODO funcref: A function with three parameters: el, i, list.
 "
-" Parameters: A list.
+" When 'list' is a dictionary, returns the key with the min value.
+function! _#min(list,...)
+  return vus#internal#minmax(a:list,'min',a:000)
+endfunction
+
+" Let an command execute once:
+function! _#once(cmd)
+endfunction
+
+" Reduce a list down to one value.
 "
-" Returns: A new list, with the unique elements from a:list.
-function! _#uniq(list)
-	let result = []
-	for i in a:list
-		if count(result,i) == 0
-			call add(result,i)
-		endif
-	endfor
-	return result
+" Parameters:
+"   list: list or dictionary.
+"   func: reduction function (funcref). TODO support a string as well as a funcref.
+"   memo: initial value of the reduction.
+"
+" When 'list' is a list:
+"   The run is provided with 'el', 'i', 'list' and 'memo'
+"   (current value of the reduction). Must return the new value of the
+"   reduction.
+"
+" When 'list' is a dictionary:
+"   The function is provided 'key', 'val', 'list' and 'memo'
+"
+function! _#reduce(list,func,memo)
+  " if its a list:
+  if type(a:list) == 3
+    let length = len(a:list)
+    for i in range(length)
+      call a:func(a:list[i],i,a:list,a:memo)
+    endfor
+    return a:memo
+  elseif type(a:list) == 4
+    let dict = a:list
+    for key in keys(a:list)
+      let val = a:list[key]
+      call a:func(key,val,dict,a:memo)
+    endfor
+    return a:memo
+  else
+    throw 'List must be a List or Dictionary.'
+  endif
+endfunction
+
+" Add up all the elements in a list.
+"
+" Returns:
+"   - the sum of the list.
+function! _#sum(list)
+  let sum = 0
+  for i in a:list
+    let sum += i
+  endfor
+  return sum
 endfunction
 
 " Sort a list.
@@ -170,65 +224,20 @@ function! _#sort(list,...)
   return sort(a:list)
 endfunction
 
-" Reduce a list down to one value.
+" Return the unique elements in a list.
 "
-" Parameters:
-"   list: list or dictionary.
-"   func: reduction function (funcref). TODO support a string as well as a funcref.
-"   memo: initial value of the reduction.
+" TODO document and support hashes?
+" TODO support a funcref?
 "
-" When 'list' is a list:
-"   The run is provided with 'el', 'i', 'list' and 'memo'
-"   (current value of the reduction). Must return the new value of the
-"   reduction.
+" Parameters: A list.
 "
-" When 'list' is a dictionary:
-"   The function is provided 'key', 'val', 'list' and 'memo'
-"
-function! _#reduce(list,func,memo)
-  " if its a list:
-  if type(a:list) == 3
-    let length = len(a:list)
-    for i in range(length)
-      call a:func(a:list[i],i,a:list,a:memo)
-    endfor
-    return a:memo
-  elseif type(a:list) == 4
-    let dict = a:list
-    for key in keys(a:list)
-      let val = a:list[key]
-      call a:func(key,val,dict,a:memo)
-    endfor
-    return a:memo
-  else
-    throw 'List must be a List or Dictionary.'
-  endif
-endfunction
-
-" Give the minimum value of a list or dictionary.
-"
-" Parameters:
-"      list: a list or dictionary.
-"  selector: (optional). One of:
-"  - string: will be evaluated. Variables 'el' (current element from the
-"            list), 'i' (index of the element), and 'list' (the list) are provided.
-"  - TODO funcref: A function with three parameters: el, i, list.
-"
-" When 'list' is a dictionary, returns the key with the min value.
-function! _#min(list,...)
-  return vus#internal#minmax(a:list,'min',a:000)
-endfunction
-
-" Give the maximum value of a list or dictionary.
-"
-" Parameters:
-"      list: a list or dictionary.
-"  selector: (optional). One of:
-"  - string: will be evaluated. Variables 'el' (current element from the
-"            list), 'i' (index of the element), and 'list' (the list) are provided.
-"  - TODO funcref: A function with three parameters: el, i, list.
-"
-" When 'list' is a dictionary, returns the key with the max value.
-function! _#max(list,...)
-  return vus#internal#minmax(a:list,'max',a:000)
+" Returns: A new list, with the unique elements from a:list.
+function! _#uniq(list)
+	let result = []
+	for i in a:list
+		if count(result,i) == 0
+			call add(result,i)
+		endif
+	endfor
+	return result
 endfunction

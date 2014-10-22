@@ -1,18 +1,19 @@
 VUS
 ===
-An underscore like support library for Vim.
+An underscore/lodash-like library for Vim.
 
-Functions currently implemented. See the source for more details:
+Functions implemented are listed below. See the source for more details:
 
- * _#sum()
- * _#map()
- * _#memoize()
- * _#hash()
- * _#uniq()
- * _#sort()
- * _#reduce()
- * _#min()
- * _#max()
+ * **_#hash()** : Given a string, return a hash of the string (16 characters).
+ * **_#map()** : Perform a mapping on the dictionary.
+ * **_#max()** : Return the maximum value of a list or dictionary.
+ * **_#memoize()** : Wrap a function with a memoization storage mechanism.
+ * **_#min()** : Give the minimum value of a list or dictionary.
+ * **_#once()** : Returns a function that will only execute once (per buffer/window, etc).
+ * **_#reduce()** : Reduce a list down to one value using an arbitrary reducing function.
+ * **_#sort()** : Sort a list (supports arbitrary sort methods)
+ * **_#sum()** : Add up all the elements in a list.
+ * **_#uniq()** : Return the unique elements in a list.
 
 Install
 ====
