@@ -204,12 +204,12 @@ function! _#sort(list,...)
       " the cmpstr is a string representation of the comparison function (which
       " will use a/b to do the comparison:
       let b:cmpstr = a:1
-      function! b:CmpStrFunc(a,b)
+      function! CmpStrFunc(a,b)
         let a = a:a
         let b = a:b
         exec "return ". b:cmpstr
       endfunction
-      let result = sort(a:list,function("b:CmpStrFunc"))
+      let result = sort(a:list,function("CmpStrFunc"))
       unlet b:cmpstr
       return result
     " if its a funcref
