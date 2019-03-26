@@ -1,22 +1,3 @@
-" Given a string, return a hash of the string (16 characters).
-"
-" TODO test the hash function, and/or port to vim
-" TODO support visual mode (hashing a visual selection)
-"
-" Note: this function depends on +python support.
-function! _#hash(str)
-	python import sys
-  let cleaned = substitute(a:str,"'","\\\\'","g")
-	exe "python sys.argv = ['''". cleaned ."''']"
-  python import hashlib
-  python import sys
-  python import vim
-  python str = sys.argv[0]
-  python hash = hashlib.md5(str).hexdigest()[0:15]
-  python vim.command('let s:hash = "'+ hash +'"')
-  return s:hash
-endfunction
-
 " Perform a mapping on the dictionary
 "
 " Parameters:
@@ -64,18 +45,18 @@ endfunction
 "
 function! _#memoize(fn,...)
   if exists('a:1')
-    let Hashfn = a:1
+    let l:Hashfn = a:1
   else
-    let Hashfn = function('vus#internal#dfltmemo')
+    let l:Hashfn = function('vus#internal#dfltmemo')
   endif
-  let result = { 'data': { 'hits': 0, 'misses': 0},
+  let l:result = { 'data': { 'hits': 0, 'misses': 0},
         \'fn': a:fn,
-        \'hash': Hashfn
+        \'hash': l:Hashfn
         \}
-  function result.clear() dict
+  function l:result.clear() dict
     let self.data = { 'hits': 0, 'misses': 0}
   endfunction
-  function result.call(...) dict
+  function l:result.call(...) dict
     let hash = self.hash(a:000)
     if !has_key(self.data,hash)
       let self.data[hash] = call(self.fn,a:000)
@@ -85,7 +66,7 @@ function! _#memoize(fn,...)
     endif
     return self.data[hash]
   endfunction
-  return result
+  return l:result
 endfunction
 
 " Return the maximum value of a list or dictionary.
@@ -114,10 +95,6 @@ endfunction
 " When 'list' is a dictionary, returns the key with the min value.
 function! _#min(list,...)
   return vus#internal#minmax(a:list,'min',a:000)
-endfunction
-
-" Let an command execute once:
-function! _#once(cmd)
 endfunction
 
 " Reduce a list down to one value.
@@ -160,11 +137,11 @@ endfunction
 " Returns:
 "   - the sum of the list.
 function! _#sum(list)
-  let sum = 0
+  let s:sum = 0
   for i in a:list
-    let sum += i
+    let s:sum += i
   endfor
-  return sum
+  return s:sum
 endfunction
 
 " Sort a list.
@@ -233,11 +210,15 @@ endfunction
 "
 " Returns: A new list, with the unique elements from a:list.
 function! _#uniq(list)
-	let result = []
-	for i in a:list
-		if count(result,i) == 0
-			call add(result,i)
-		endif
-	endfor
-	return result
+  let l:result = []
+  for l:i in a:list
+    if count(l:result,l:i) == 0
+      call add(l:result,l:i)
+    endif
+  endfor
+  return l:result
+endfunction
+
+
+function! _#throttle(fn) abort
 endfunction

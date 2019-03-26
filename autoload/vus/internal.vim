@@ -1,6 +1,6 @@
 " the default memoization hashing function.
 function! vus#internal#dfltmemo(args)
-  return _#hash(string(a:args))
+  return sha256(string(a:args))
 endfunction
 
 function! vus#internal#minmaxfnc(el,i,list,memo)

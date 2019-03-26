@@ -4,12 +4,12 @@ An underscore/lodash-like library for Vim.
 
 Functions implemented are listed below. See the source for more details:
 
- * **_#hash()** : Given a string, return a hash of the string (16 characters).
  * **_#map()** : Perform a mapping on the dictionary.
  * **_#max()** : Return the maximum value of a list or dictionary.
  * **_#memoize()** : Wrap a function with a memoization storage mechanism.
  * **_#min()** : Give the minimum value of a list or dictionary.
  * **_#once()** : Returns a function that will only execute once (per buffer/window, etc).
+ * **_#throttle()** : Returns a function that will only execute once per period of time.
  * **_#reduce()** : Reduce a list down to one value using an arbitrary reducing function.
  * **_#sort()** : Sort a list (supports arbitrary sort methods)
  * **_#sum()** : Add up all the elements in a list.
