@@ -3,6 +3,25 @@ function! Sum(a,b)
   return a:a+a:b
 endfunction
 
+function! TestThrottle()
+  let b:calls = 0
+  let l:ThrottledFn = _#throttle(function('Sum'), 100)
+  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call VUAssertEquals(b:calls,1)
+
+  sleep 50m
+
+  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call VUAssertEquals(b:calls,1)
+
+  sleep 100m
+
+  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call VUAssertEquals(b:calls,2)
+endfunction
+
 function! TestMemoize()
   let b:calls = 0
   let sumfn = _#memoize(function('Sum'))

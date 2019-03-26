@@ -220,5 +220,25 @@ function! _#uniq(list)
 endfunction
 
 
-function! _#throttle(fn) abort
+" Restrict a function so that it is called only once within *wait* ms.
+"
+" Parameters:
+"  * fn: a funcref.
+"  * wait: ms at most that it will be called.
+"
+" Returns: A throttled funcref.
+function! _#throttle(fn, wait) abort
+  let l:result = {
+        \'data': {'lastcall': 0, 'lastresult': 0, 'wait': a:wait / 1000.0},
+        \'fn': a:fn
+        \}
+  function l:result.call(...) dict
+    let l:lastcall = self.data.lastcall 
+    if type(l:lastcall) == 0 || reltimefloat(reltime(l:lastcall)) > self.data.wait
+      let self.data.lastcall = reltime()
+      let self.data.lastresult = call(self.fn,a:000)
+    endif
+    return self.data.lastresult
+  endfunction
+  return l:result
 endfunction
