@@ -3,23 +3,49 @@ function! Sum(a,b)
   return a:a+a:b
 endfunction
 
-function! TestThrottle()
+function! Callback()
+  let b:calls += 1
+  return 'cb'
+endfunction
+
+function! TestThrottleTrailing()
   let b:calls = 0
-  let l:ThrottledFn = _#throttle(function('Sum'), 100)
-  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
-  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  let throttle_fn = _#throttle(function('Callback'), 50, 0)
+  call VUAssertEquals(throttle_fn.call(), '<throttled>')
+  call VUAssertEquals(throttle_fn.call(), '<throttled>')
+
+  sleep 50m
+
+  call VUAssertEquals(b:calls,1)
+  call VUAssertEquals(throttle_fn.lastresult(),'cb')
+endfunction
+
+function! TestThrottleLeading()
+  let b:calls = 0
+  let ThrottledFn = _#throttle(function('Callback'), 50)
+  call ThrottledFn.call()
+  call ThrottledFn.call()
   call VUAssertEquals(b:calls,1)
 
   sleep 50m
 
-  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
   call VUAssertEquals(b:calls,1)
 
-  sleep 100m
-
-  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
-  call VUAssertEquals(l:ThrottledFn.call(1,3),4)
+  call ThrottledFn.call()
   call VUAssertEquals(b:calls,2)
+endfunction
+
+function! TestThrottleLeadingNoThrottling()
+  let b:calls = 0
+  let ThrottledFn = _#throttle(function('Callback'), 50)
+
+  call ThrottledFn.call()
+  call VUAssertEquals(b:calls,1)
+  sleep 75m
+
+  call ThrottledFn.call()
+  call VUAssertEquals(b:calls,2)
+  sleep 75m
 endfunction
 
 function! TestMemoize()
